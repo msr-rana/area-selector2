@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+    <title> Area Selector </title>
+
+    <style>
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-weight: 300;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 rounded-0 shadow">
+                    <dib class="card-body">
+                        <h1 class="text-primary"> Select Product Delivery Location </h1>
+                        <h3 class="text-info"> <b>Selected:</b> <span>None</span> </h3>
+                        <hr>
+
+                        <div class="form-group">
+                            <label for="Division">Division</label>
+                            <select class="custom-select" id="Division">
+                                <option>Select a Division</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="District">District</label>
+                            <select class="custom-select" id="District">
+                                <option>Select a District</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Upazilla">Upazilla</label>
+                            <select class="custom-select" id="Upazilla">
+                                <option>Select a Upazilla</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="union">Union</label>
+                            <select class="custom-select" id="Union">
+                                <option>Select a Union</option>
+                            </select>
+                        </div>
+
+                    </dib>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <!-- Area Data -->
+    <script src="data/divisions.js"></script>
+    <script src="data/districts.js"></script>
+    <script src="data/upazillas.js"></script>
+    <script src="data/unions.js"></script>
+
+    <script>
+
+        generateDivisions();
+
+        // Options Generator
+        function generateOptions(collection, hintText) {
+            var options = `<option> Select a ${hintText} </option>`;
+            for (var item of collection) {
+                options += `<option value="${item.name}" data-ref="${item.id}">
+                    ${item.name}
+                </option>`;
+            }
+            return options;
+        }
+
+        // Division
+        function generateDivisions() {
+            var options = generateOptions(divisions, 'Division');
+            $('select[id="Division"]').html(options);
+        }
+
+        // Division change 
+        $(document).on('change', '#Division', function () {
+            $('.text-info span').text('None');
+            $('#District').html('<option>Select a District</option>');
+            $('#Upazilla').html('<option>Select a Upazilla</option>');
+            $('#Union').html('<option>Select a Union</option>');
+            var ref = $('option:selected', this).data('ref');
+            generateDistricts(ref);
+        });
+
+        // District
+        function generateDistricts(divisionId) {
+            var dists = districts.filter(x => x.division_id == divisionId);
+            var options = generateOptions(dists, 'District');
+            $('#District').html(options);
+        }
+
+        // District change
+        $(document).on('change', '#District', function () {
+            $('#Upazilla').html('<option>Select a Upazilla</option>');
+            $('#Union').html('<option>Select a Union</option>');
+            var ref = $('option:selected', this).data('ref');
+            generateUpazillas(ref);
+        });
+
+        // Upazilla
+        function generateUpazillas(districtId) {
+            var upazis = upazillas.filter(x => x.district_id == districtId);
+            var options = generateOptions(upazis, 'Upazilla');
+            $('#Upazilla').html(options);
+        }
+
+        // Upazilla change
+        $(document).on('change', '#Upazilla', function () {
+            $('#Union').html('<option>Select a Upazilla</option>');
+            var ref = $('option:selected', this).data('ref');
+            generateUnions(ref);
+        });
+
+        // Union
+        function generateUnions(upazillaId) {
+            var unis = unions.filter(x => x.upazilla_id == upazillaId);
+            var options = generateOptions(unis, 'Union');
+            $('#Union').html(options);
+        }
+
+        // Union change
+        $('#Union').change(function () {
+
+            // get all selected values
+            var division = $('#Division').val();
+            var district = $('#District').val();
+            var upazilla = $('#Upazilla').val();
+            var union = $('#Union').val();
+
+            // generate the text
+            var txt = `${division} > ${district} > ${upazilla} > ${union}`;
+
+            // insert inside the span that is inside h3 (<h3> .... . . .. .<span></span></h3>)
+            $('h3 span').text(txt);
+        });
+
+
+
+    </script>
+
+</body>
+
+</html>
